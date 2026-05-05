@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sakura Sena | Fans</title>
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #ff0055;
+      --bg: #0a0a0a;
+      --bg2: #141414;
+      --bg3: #1c1c1c;
+      --border: #272727;
+      --text: #f0f0f0;
+      --muted: #666;
+      --header-h: 52px;
+      --nav-h: 62px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans', sans-serif;
+      padding-top: var(--header-h);
+      padding-bottom: var(--nav-h);
+    }
+
+    /* HEADER */
+    .site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--header-h);
+      background: rgba(10,10,10,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .site-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, #fff 20%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(10,10,10,0.98);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: stretch;
+      z-index: 100;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+
+    .nav-item svg { width: 21px; height: 21px; transition: transform 0.2s; }
+    .nav-item.active { color: var(--accent); }
+    .nav-item.active svg { transform: translateY(-2px); }
+
+    /* PAGES */
+    .page { display: none; padding: 12px; animation: fadeIn 0.2s ease; }
+    .page.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* HOME THUMB ROW */
+    .home-section { margin-bottom: 22px; }
+
+    .thumb-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .thumb-row::-webkit-scrollbar { display: none; }
+
+    .thumb {
+      flex: 0 0 130px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg3);
+      cursor: pointer;
+      scroll-snap-align: start;
+      position: relative;
+      aspect-ratio: 9/14;
+      border: 1px solid var(--border);
+      transition: transform 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .thumb:active { transform: scale(0.95); }
+
+    .thumb img, .thumb video {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .thumb-badge {
+      position: absolute;
+      top: 6px; left: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .thumb-badge.video { background: var(--accent); }
+    .thumb-badge.gif   { background: #14b464; }
+    .thumb-badge.photo { background: #1a7fff; }
+
+    .thumb-play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.28);
+    }
+    .thumb-play-overlay svg { width: 32px; height: 32px; drop-shadow: 0 2px 8px #000; }
+
+    /* VIDEO PAGE */
+    .video-feed { display: flex; flex-direction: column; gap: 16px; }
+
+    .video-card {
+      background: var(--bg2);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .video-card-info { padding: 10px 12px; font-size: 14px; font-weight: 600; }
+
+    /* Plyr */
+    .plyr {
+      --plyr-color-main: #ff0055;
+      --plyr-video-control-color: #fff;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .plyr__control:focus,
+    .plyr__control:focus-visible { outline: none !important; box-shadow: none !important; }
+    .plyr__control::after,
+    .plyr__control::before { display: none !important; }
+    .plyr__control:active { transform: none !important; box-shadow: none !important; background: transparent !important; }
+    .plyr__control--overlaid:active,
+    .plyr__control--overlaid:focus { transform: none !important; box-shadow: none !important; outline: none !important; }
+
+    /* MEDIA GRID */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+    }
+
+    .media-item {
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--bg3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .media-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .lightbox.open { display: flex; }
+
+    .lightbox-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .lightbox img { max-width: 100%; max-height: 85vh; border-radius: 8px; }
+
+    /* ABOUT */
+    .about-card {
+      background: var(--bg2);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .about-avatar {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #660022);
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      border: 2px solid rgba(255,0,85,0.3);
+    }
+
+    .about-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 30px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .about-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .about-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    .stat-lbl {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <span class="site-title">Sakura Sena</span>
+  </header>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="home-section">
+      <div class="section-label">Video</div>
+      <div class="thumb-row" id="home-videos"></div>
+    </div>
+    <div class="home-section">
+      <div class="section-label">Photo</div>
+      <div class="thumb-row" id="home-photos"></div>
+    </div>
+    <div class="home-section">
+      <div class="section-label">GIF</div>
+      <div class="thumb-row" id="home-gifs"></div>
+    </div>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="page" id="page-video">
+    <div class="video-feed" id="video-feed"></div>
+  </div>
+
+  <!-- PHOTO -->
+  <div class="page" id="page-photo">
+    <div class="media-grid" id="photo-grid"></div>
+  </div>
+
+  <!-- GIF -->
+  <div class="page" id="page-gif">
+    <div class="media-grid" id="gif-grid"></div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="page" id="page-about">
+    <div class="about-card">
+      <div class="about-avatar">🌸</div>
+      <div class="about-name">Sakura Sena</div>
+      <p class="about-desc">
+        Unofficial fan-site.<br>
+        Video. Photo. GIF — OnlyFans Sakura Sena.
+      </p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-num" id="stat-v">0</div>
+          <div class="stat-lbl">Video</div>
+        </div>
+        <div>
+          <div class="stat-num" id="stat-p">0</div>
+          <div class="stat-lbl">Photo</div>
+        </div>
+        <div>
+          <div class="stat-num" id="stat-g">0</div>
+          <div class="stat-lbl">GIF</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lb-close">✕</button>
+    <div id="lb-content"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="home">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Home
+    </button>
+    <button class="nav-item" data-page="video">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      Video
+    </button>
+    <button class="nav-item" data-page="photo">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zm-9-3.5-2.5-3-3.5 4.5h11l-5-6.5z"/></svg>
+      Photo
+    </button>
+    <button class="nav-item" data-page="gif">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H8v-2h6v2zm2-4H8v-2h8v2zm0-4H8V7h8v2z"/></svg>
+      GIF
+    </button>
+    <button class="nav-item" data-page="about">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      About
+    </button>
+  </nav>
+
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+  <script>
+    // ДАННЫЕ — замените на свои URL
+    const DATA = {
+      videos: [
+        { title: "Sakura Sena (1)", url: "https://videotourl.com/videos/1773194712458-1192e4ae-5f5f-4233-94fb-2a2a72f79b02.mp4" },
+        { title: "Sakura Sena (2)", url: "https://videotourl.com/videos/1773081900976-fc41ebd6-7d04-46ba-babe-2a2cbb77f439.mp4" },
+        { title: "Sakura Sena (3)", url: "https://videotourl.com/videos/1773076133597-93292a4b-b28c-4ef8-975f-7ad5f79a90ce.mp4" },
+        { title: "Sakura Sena Cam Show (1)", url: "https://videotourl.com/videos/1777942591688-a1e66184-5f27-4d1b-96dc-89480a31d9d7.mp4" },
+        { title: "Sakura Sena Striping", url: "https://videotourl.com/videos/1777942860623-4835ac35-7bab-4383-9657-b0a1e40b8e52.mp4" },
+      ],
+      photos: [
+        "https://videotourl.com/images/1777924145650-75235d23-31e2-483c-a30c-bd2ef50a68bb.jpg",
+        "https://videotourl.com/images/1777924211861-a87c75fa-d382-4dc8-91b3-7a1c5a330787.jpg",
+        "https://videotourl.com/images/1777924252798-52e1bd8e-0e65-451f-a99a-7eed45a1508b.jpg",
+        "https://videotourl.com/images/1777924292805-d2f2bb3e-bd1c-43b0-9758-8ca1c6be2f37.jpg",
+        "https://videotourl.com/images/1777924332020-14c483db-7efc-4b94-bead-f1e397cbaff4.jpg",
+        "https://videotourl.com/images/1777924381856-3cbcfd2d-c4a2-4a3a-b716-8e429daf18a9.jpg",
+        "https://videotourl.com/images/1777924584012-603d5269-6bdf-4091-b3e6-563009266886.jpg",
+        "https://videotourl.com/images/1777924622701-c07eb6d3-c8bd-4856-8c4c-ce30deed32c3.jpg",
+        "https://videotourl.com/images/1777924676339-545d1dbc-55ee-48f0-aa90-48b06e898a90.jpeg",
+        "https://videotourl.com/images/1777942421604-96004a26-20cf-4bf3-8a04-4c88f2afe0ab.jpeg",
+      ],
+      gifs: [
+        "https://videotourl.com/images/1777931594485-3f280f88-35ac-4c66-a529-6348f559c9ca.gif",
+        "https://videotourl.com/images/1777931725080-0e129bc2-94ba-4833-aaab-d7ac42a676c5.gif",
+        "https://media.giphy.com/media/xT9IgG50Lg7russbDa/giphy.gif",
+        "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
+        "https://media.giphy.com/media/3oEjHAufDGNlAAnb5e/giphy.gif",
+        "https://media.giphy.com/media/l2Je0vPZiXr6Brtgk/giphy.gif",
+      ]
+    };
+
+    const players = [];
+
+    // NAVIGATION
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.page;
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('page-' + target).classList.add('active');
+        players.forEach(p => { try { p.pause(); } catch(e){} });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    // LIGHTBOX
+    const lightbox = document.getElementById('lightbox');
+    const lbContent = document.getElementById('lb-content');
+
+    document.getElementById('lb-close').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+    function openLightbox(url) {
+      lbContent.innerHTML = `<img src="${url}" alt="">`;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lbContent.innerHTML = '';
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // HELPERS
+    function makeImg(url) {
+      const el = document.createElement('img');
+      el.src = url;
+      el.loading = 'lazy';
+      el.alt = '';
+      return el;
+    }
+
+    // HOME
+    function initHome() {
+      // Video thumbs
+      const row = document.getElementById('home-videos');
+      DATA.videos.forEach(v => {
+        const thumb = document.createElement('div');
+        thumb.className = 'thumb';
+        // Use video element for thumbnail (shows first frame)
+        const vid = document.createElement('video');
+        vid.src = v.url;
+        vid.preload = 'metadata';
+        vid.muted = true;
+        vid.setAttribute('playsinline', '');
+        vid.style.pointerEvents = 'none';
+        thumb.appendChild(vid);
+        thumb.innerHTML += `
+          <div class="thumb-badge video">Video</div>
+          <div class="thumb-play-overlay">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+          </div>`;
+        thumb.addEventListener('click', () => navigateTo('video'));
+        row.appendChild(thumb);
+      });
+
+      // Photo thumbs
+      const prow = document.getElementById('home-photos');
+      DATA.photos.slice(0, 5).forEach(url => {
+        const thumb = document.createElement('div');
+        thumb.className = 'thumb';
+        thumb.appendChild(makeImg(url));
+        const badge = document.createElement('div');
+        badge.className = 'thumb-badge photo';
+        badge.textContent = 'Photo';
+        thumb.appendChild(badge);
+        thumb.addEventListener('click', () => openLightbox(url));
+        prow.appendChild(thumb);
+      });
+
+      // GIF thumbs
+      const grow = document.getElementById('home-gifs');
+      DATA.gifs.slice(0, 5).forEach(url => {
+        const thumb = document.createElement('div');
+        thumb.className = 'thumb';
+        thumb.appendChild(makeImg(url));
+        const badge = document.createElement('div');
+        badge.className = 'thumb-badge gif';
+        badge.textContent = 'GIF';
+        thumb.appendChild(badge);
+        thumb.addEventListener('click', () => openLightbox(url));
+        grow.appendChild(thumb);
+      });
+    }
+
+    // VIDEO PAGE
+    function initVideos() {
+      const feed = document.getElementById('video-feed');
+      DATA.videos.forEach(v => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+
+        const video = document.createElement('video');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('preload', 'metadata');
+        const src = document.createElement('source');
+        src.src = v.url;
+        src.type = 'video/mp4';
+        video.appendChild(src);
+
+        const info = document.createElement('div');
+        info.className = 'video-card-info';
+        info.textContent = v.title;
+
+        card.appendChild(video);
+        card.appendChild(info);
+        feed.appendChild(card);
+
+        const player = new Plyr(video, {
+          controls: ['play-large','play','progress','current-time','mute','volume','fullscreen'],
+          tooltips: { controls: false, seek: true },
+        });
+
+        player.on('play', () => {
+          players.forEach(p => { if (p !== player) { try { p.pause(); } catch(e){} } });
+        });
+
+        players.push(player);
+      });
+    }
+
+    // PHOTO PAGE
+    function initPhotos() {
+      const grid = document.getElementById('photo-grid');
+      DATA.photos.forEach(url => {
+        const item = document.createElement('div');
+        item.className = 'media-item';
+        item.appendChild(makeImg(url));
+        item.addEventListener('click', () => openLightbox(url));
+        grid.appendChild(item);
+      });
+    }
+
+    // GIF PAGE
+    function initGifs() {
+      const grid = document.getElementById('gif-grid');
+      DATA.gifs.forEach(url => {
+        const item = document.createElement('div');
+        item.className = 'media-item';
+        item.appendChild(makeImg(url));
+        item.addEventListener('click', () => openLightbox(url));
+        grid.appendChild(item);
+      });
+    }
+
+    function navigateTo(page) {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // STATS
+    document.getElementById('stat-v').textContent = DATA.videos.length;
+    document.getElementById('stat-p').textContent = DATA.photos.length;
+    document.getElementById('stat-g').textContent = DATA.gifs.length;
+
+    // INIT
+    initHome();
+    initVideos();
+    initPhotos();
+    initGifs();
+  </script>
+</body>
+</html>
